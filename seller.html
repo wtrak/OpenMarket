@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Seller Upload</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav style="margin-bottom: 20px;">
+  <a href="seller.html">Seller Upload</a> |
+  <a href="storefront.html">Storefront</a>
+</nav>
+
+<h1>Upload Booth Photo & Inventory</h1>
+<input type="file" id="boothPhoto" accept="image/*"><br><br>
+<div id="inventoryForm">
+  <input type="text" id="title" placeholder="Item Title"><br>
+  <input type="text" id="category" placeholder="Category"><br>
+  <textarea id="description" placeholder="Description"></textarea><br>
+  <input type="text" id="price" placeholder="Price"><br>
+  <input type="text" id="contact" placeholder="Contact (email or phone)"><br>
+  <button onclick="addItem()">Add Item</button>
+</div>
+<div id="itemList"></div>
+<script src="script.js"></script>
+</body>
+</html>
