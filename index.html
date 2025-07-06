@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Photo Inventory Tool</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Upload & Inventory</h1>
+  <input type="file" id="imageUpload" accept="image/*"><br><br>
+  <img id="preview" style="max-width: 300px;"><br><br>
+
+  <form id="inventoryForm">
+    <label>Title: <input type="text" id="title"></label><br>
+    <label>Category: <input type="text" id="category"></label><br>
+    <label>Description: <textarea id="description"></textarea></label><br>
+    <label>Price: <input type="number" id="price" step="0.01"></label><br><br>
+    <button type="submit">Save Listing</button>
+  </form>
+
+  <h2>Storefront</h2>
+  <input type="text" id="search" placeholder="Search listings..."><br><br>
+  <div id="storefront"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
