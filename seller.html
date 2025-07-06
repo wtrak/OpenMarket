@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Seller Upload</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, textarea { display: block; margin: 8px 0; width: 300px; }
+    .item { border-top: 1px solid #ccc; margin-top: 20px; padding-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Upload Booth & Inventory</h1>
+  <input type="file" id="boothImage" accept="image/*">
+  <div id="inventory"></div>
+  <button onclick="addItem()">➕ Add Item</button>
+  <button onclick="saveAll()">💾 Save Store</button>
+
+  <script>
+    const inventoryDiv = document.getElementById('inventory');
+
+    function addItem() {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <input placeholder="Item Title">
+        <input placeholder="Category">
+        <textarea placeholder="Description"></textarea>
+        <input placeholder="Price">
+        <input placeholder="Seller Contact (email or phone)">
+      `;
+      inventoryDiv.appendChild(div);
+    }
+
+    function saveAll() {
+      const items = [];
+      document.querySelectorAll('.item').forEach(el => {
+        const inputs = el.querySelectorAll('input, textarea');
+        items.push({
+          title: inputs[0].value,
+          category: inputs[1].value,
+          description: inputs[2].value,
+          price: inputs[3].value,
+          contact: inputs[4].value
+        });
+      });
+
+      const boothImage = document.getElementById('boothImage').files[0];
+      const reader = new FileReader();
+      reader.onload = function () {
+        const boothImageData = reader.result;
+        localStorage.setItem('boothImage', boothImageData);
+        localStorage.setItem('storeItems', JSON.stringify(items));
+        alert('✅ Store saved!');
+      };
+      if (boothImage) {
+        reader.readAsDataURL(boothImage);
+      } else {
+        localStorage.setItem('storeItems', JSON.stringify(items));
+        alert('✅ Store saved (no booth image)');
+      }
+    }
+  </script>
+</body>
+</html>
