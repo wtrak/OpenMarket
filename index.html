@@ -1,28 +1,101 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Photo Inventory Tool</title>
-  <link rel="stylesheet" href="style.css">
+  <title>OpenMarket</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input, textarea {
+      margin: 5px 0;
+      padding: 5px;
+      width: 300px;
+    }
+    .item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    img {
+      max-width: 100px;
+      display: block;
+    }
+  </style>
 </head>
 <body>
   <h1>Upload & Inventory</h1>
-  <input type="file" id="imageUpload" accept="image/*"><br><br>
-  <img id="preview" style="max-width: 300px;"><br><br>
-
-  <form id="inventoryForm">
-    <label>Title: <input type="text" id="title"></label><br>
-    <label>Category: <input type="text" id="category"></label><br>
-    <label>Description: <textarea id="description"></textarea></label><br>
-    <label>Price: <input type="number" id="price" step="0.01"></label><br><br>
-    <button type="submit">Save Listing</button>
-  </form>
+  <input type="file" id="fileInput" accept="image/*"><br>
+  <label>Title:</label><br>
+  <input type="text" id="title"><br>
+  <label>Category:</label><br>
+  <input type="text" id="category"><br>
+  <label>Description:</label><br>
+  <textarea id="description"></textarea><br>
+  <label>Price:</label><br>
+  <input type="text" id="price"><br>
+  <button onclick="saveListing()">Save Listing</button>
 
   <h2>Storefront</h2>
-  <input type="text" id="search" placeholder="Search listings..."><br><br>
+  <input type="text" id="search" placeholder="Search listings..." oninput="renderStorefront()"><br><br>
   <div id="storefront"></div>
 
-  <script src="script.js"></script>
+  <script>
+    const listings = [];
+
+    function saveListing() {
+      const file = document.getElementById('fileInput').files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const imageUrl = e.target.result;
+        const title = document.getElementById('title').value;
+        const category = document.getElementById('category').value;
+        const description = document.getElementById('description').value;
+        const price = document.getElementById('price').value;
+
+        const listing = { imageUrl, title, category, description, price };
+        listings.push(listing);
+        renderStorefront();
+
+        // Clear inputs
+        document.getElementById('fileInput').value = "";
+        document.getElementById('title').value = "";
+        document.getElementById('category').value = "";
+        document.getElementById('description').value = "";
+        document.getElementById('price').value = "";
+      };
+
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function renderStorefront() {
+      const container = document.getElementById('storefront');
+      const search = document.getElementById('search').value.toLowerCase();
+      container.innerHTML = "";
+
+      listings
+        .filter(item => 
+          item.title.toLowerCase().includes(search) || 
+          item.category.toLowerCase().includes(search) || 
+          item.description.toLowerCase().includes(search))
+        .forEach((item, index) => {
+          const div = document.createElement('div');
+          div.className = "item";
+          div.innerHTML = `
+            <img src="${item.imageUrl}" alt="Item Image">
+            <strong>${item.title}</strong><br>
+            <em>${item.category}</em><br>
+            ${item.description}<br>
+            <strong>$${item.price}</strong><br><br>
+            <button onclick="alert('Message sent to seller about: ${item.title}')">Message Seller</button>
+          `;
+          container.appendChild(div);
+        });
+    }
+  </script>
 </body>
 </html>
