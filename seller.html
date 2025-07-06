@@ -13,6 +13,7 @@
 
 <h1>Upload Booth Photo & Inventory</h1>
 <input type="file" id="boothPhoto" accept="image/*"><br><br>
+
 <div id="inventoryForm">
   <input type="text" id="title" placeholder="Item Title"><br>
   <input type="text" id="category" placeholder="Category"><br>
@@ -21,7 +22,48 @@
   <input type="text" id="contact" placeholder="Contact (email or phone)"><br>
   <button onclick="addItem()">Add Item</button>
 </div>
+
 <div id="itemList"></div>
-<script src="script.js"></script>
+
+<script>
+  function addItem() {
+    const title = document.getElementById("title").value;
+    const category = document.getElementById("category").value;
+    const description = document.getElementById("description").value;
+    const price = document.getElementById("price").value;
+    const contact = document.getElementById("contact").value;
+    const boothFile = document.getElementById("boothPhoto").files[0];
+
+    if (!boothFile) {
+      alert("Please upload a booth photo.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function () {
+      const imageDataUrl = reader.result;
+
+      const item = {
+        title,
+        category,
+        description,
+        price,
+        contact,
+        image: imageDataUrl  // ✅ Save Base64 image
+      };
+
+      const items = JSON.parse(localStorage.getItem("market_items") || "[]");
+      items.push(item);
+      localStorage.setItem("market_items", JSON.stringify(items));
+
+      alert("Item added!");
+      document.getElementById("inventoryForm").reset();
+      document.getElementById("boothPhoto").value = "";
+    };
+
+    reader.readAsDataURL(boothFile);  // ✅ Convert to Base64
+  }
+</script>
+
 </body>
 </html>
