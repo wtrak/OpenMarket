@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Storefront</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #search { width: 300px; margin-bottom: 20px; }
+    .item { border: 1px solid #ccc; margin-bottom: 15px; padding: 10px; }
+    img { max-width: 300px; display: block; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Storefront</h1>
+  <input id="search" placeholder="Search listings..." oninput="filterItems()">
+  <div id="store"></div>
+
+  <script>
+    const storeDiv = document.getElementById('store');
+    const searchInput = document.getElementById('search');
+
+    const boothImage = localStorage.getItem('boothImage');
+    const items = JSON.parse(localStorage.getItem('storeItems') || '[]');
+
+    function displayItems(filteredItems) {
+      storeDiv.innerHTML = '';
+      if (boothImage) {
+        const img = document.createElement('img');
+        img.src = boothImage;
+        storeDiv.appendChild(img);
+      }
+
+      filteredItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <h3>${item.title}</h3>
+          <p><strong>Category:</strong> ${item.category}</p>
+          <p>${item.description}</p>
+          <p><strong>Price:</strong> $${item.price}</p>
+          <a href="mailto:${item.contact}?subject=Interested in ${encodeURIComponent(item.title)}">📩 I'm Interested</a>
+        `;
+        storeDiv.appendChild(div);
+      });
+    }
+
+    function filterItems() {
+      const query = searchInput.value.toLowerCase();
+      const results = items.filter(item =>
+        item.title.toLowerCase().includes(query) ||
+        item.category.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query)
+      );
+      displayItems(results);
+    }
+
+    displayItems(items);
+  </script>
+</body>
+</html>
