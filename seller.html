@@ -13,6 +13,7 @@
 
 <h1>Upload Booth Photo & Inventory</h1>
 <input type="file" id="boothPhoto" accept="image/*"><br><br>
+<img id="preview" style="max-width: 300px; display: none;"><br><br>
 
 <div id="inventoryForm">
   <input type="text" id="title" placeholder="Item Title"><br>
@@ -26,43 +27,86 @@
 <div id="itemList"></div>
 
 <script>
+  // Load preview if it exists
+  const saved = localStorage.getItem("boothPhoto");
+  const preview = document.getElementById("preview");
+  if (saved) {
+    preview.src = saved;
+    preview.style.display = "block";
+  }
+
+  // Save booth photo to localStorage
+  const boothInput = document.getElementById("boothPhoto");
+  boothInput.addEventListener("change", function () {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      localStorage.setItem("boothPhoto", e.target.result);
+      preview.src = e.target.result;
+      preview.style.display = "block";
+    };
+    reader.readAsDataURL(this.files[0]);
+  });
+
   function addItem() {
     const title = document.getElementById("title").value;
     const category = document.getElementById("category").value;
     const description = document.getElementById("description").value;
     const price = document.getElementById("price").value;
     const contact = document.getElementById("contact").value;
-    const boothFile = document.getElementById("boothPhoto").files[0];
+    const boothImage = localStorage.getItem("boothPhoto");
 
-    if (!boothFile) {
+    if (!boothImage) {
       alert("Please upload a booth photo.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function () {
-      const imageDataUrl = reader.result;
-
-      const item = {
-        title,
-        category,
-        description,
-        price,
-        contact,
-        image: imageDataUrl  // ✅ Save Base64 image
-      };
-
-      const items = JSON.parse(localStorage.getItem("market_items") || "[]");
-      items.push(item);
-      localStorage.setItem("market_items", JSON.stringify(items));
-
-      alert("Item added!");
-      document.getElementById("inventoryForm").reset();
-      document.getElementById("boothPhoto").value = "";
+    const item = {
+      title,
+      category,
+      description,
+      price,
+      contact,
+      image: boothImage
     };
 
-    reader.readAsDataURL(boothFile);  // ✅ Convert to Base64
+    const items = JSON.parse(localStorage.getItem("market_items") || "[]");
+    items.push(item);
+    localStorage.setItem("market_items", JSON.stringify(items));
+
+    alert("Item added!");
+
+    document.getElementById("title").value = "";
+    document.getElementById("category").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("price").value = "";
+    document.getElementById("contact").value = "";
+
+    showItems();
   }
+
+  function showItems() {
+    const list = document.getElementById("itemList");
+    if (!list) return;
+    list.innerHTML = "";
+
+    const items = JSON.parse(localStorage.getItem("market_items") || "[]");
+    if (items.length && items[0].image) {
+      const img = document.createElement("img");
+      img.src = items[0].image;
+      img.style.maxWidth = "300px";
+      list.appendChild(img);
+      list.appendChild(document.createElement("br"));
+    }
+
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `<b>${item.title}</b><br>${item.category}<br>${item.description}<br><b>${item.price}</b><br>Contact: ${item.contact}`;
+      list.appendChild(div);
+    });
+  }
+
+  window.onload = showItems;
 </script>
 
 </body>
