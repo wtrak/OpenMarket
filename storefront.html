@@ -13,7 +13,55 @@
 
 <h1>Search Storefront</h1>
 <input type="text" id="searchInput" placeholder="Search listings..." onkeyup="searchListings()"><br><br>
+
 <div id="results"></div>
-<script src="script.js"></script>
+
+<script>
+  function loadListings() {
+    const items = JSON.parse(localStorage.getItem("market_items") || "[]");
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+
+    for (const item of items) {
+      const div = document.createElement("div");
+      div.className = "listing";
+      div.style.border = "1px solid #ccc";
+      div.style.marginBottom = "15px";
+      div.style.padding = "10px";
+
+      const img = document.createElement("img");
+      img.src = item.image;
+      img.alt = "Item Image";
+      img.style.maxWidth = "200px";
+      img.style.display = "block";
+      img.style.marginBottom = "10px";
+
+      const info = `
+        <strong>${item.title}</strong><br>
+        <em>${item.category}</em><br>
+        ${item.description}<br>
+        <strong>Price:</strong> ${item.price}<br>
+        <strong>Contact:</strong> ${item.contact}<br><br>
+        <a href="mailto:${item.contact}?subject=Interested in ${encodeURIComponent(item.title)}&body=Hi, I'm interested in your item titled '${encodeURIComponent(item.title)}'. Please let me know if it's still available.">I'm Interested</a>
+      `;
+
+      div.appendChild(img);
+      div.innerHTML += info;
+      resultsDiv.appendChild(div);
+    }
+  }
+
+  function searchListings() {
+    const keyword = document.getElementById("searchInput").value.toLowerCase();
+    const listings = document.querySelectorAll(".listing");
+
+    listings.forEach(listing => {
+      listing.style.display = listing.innerText.toLowerCase().includes(keyword) ? "block" : "none";
+    });
+  }
+
+  window.onload = loadListings;
+</script>
+
 </body>
 </html>
