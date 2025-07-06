@@ -27,24 +27,61 @@
 <div id="itemList"></div>
 
 <script>
-  // Load preview if it exists
-  const saved = localStorage.getItem("boothPhoto");
   const preview = document.getElementById("preview");
+  const boothInput = document.getElementById("boothPhoto");
+
+  // Load booth photo from localStorage if available
+  const saved = localStorage.getItem("boothPhoto");
   if (saved) {
     preview.src = saved;
     preview.style.display = "block";
   }
 
-  // Save booth photo to localStorage
-  const boothInput = document.getElementById("boothPhoto");
   boothInput.addEventListener("change", function () {
+    const file = this.files[0];
     const reader = new FileReader();
     reader.onload = function (e) {
       localStorage.setItem("boothPhoto", e.target.result);
       preview.src = e.target.result;
       preview.style.display = "block";
+
+      // 🔁 Send to backend for analysis
+      const formData = new FormData();
+      formData.append("image", file);
+
+      fetch("https://openmarket-api-yhxc.onrender.com/analyze", {
+        method: "POST",
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!data.items || !Array.isArray(data.items)) {
+            alert("AI failed to return items.");
+            return;
+          }
+
+          const boothImage = e.target.result;
+          const contact = prompt("Enter contact info (email or phone):") || "";
+
+          const items = JSON.parse(localStorage.getItem("market_items") || "[]");
+
+          data.items.forEach(aiItem => {
+            items.push({
+              ...aiItem,
+              contact,
+              image: boothImage
+            });
+          });
+
+          localStorage.setItem("market_items", JSON.stringify(items));
+          showItems();
+        })
+        .catch(err => {
+          console.error("API error:", err);
+          alert("There was an error analyzing the image.");
+        });
     };
-    reader.readAsDataURL(this.files[0]);
+    reader.readAsDataURL(file);
   });
 
   function addItem() {
@@ -74,7 +111,6 @@
     localStorage.setItem("market_items", JSON.stringify(items));
 
     alert("Item added!");
-
     document.getElementById("title").value = "";
     document.getElementById("category").value = "";
     document.getElementById("description").value = "";
@@ -108,6 +144,7 @@
 
   window.onload = showItems;
 </script>
+
 
 </body>
 </html>
