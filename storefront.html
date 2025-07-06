@@ -17,46 +17,64 @@
 <div id="results"></div>
 
 <script>
+  function groupItemsByImage(items) {
+    const grouped = {};
+    for (const item of items) {
+      if (!grouped[item.image]) grouped[item.image] = [];
+      grouped[item.image].push(item);
+    }
+    return grouped;
+  }
+
   function loadListings() {
     const items = JSON.parse(localStorage.getItem("market_items") || "[]");
+    const grouped = groupItemsByImage(items);
     const resultsDiv = document.getElementById("results");
     resultsDiv.innerHTML = "";
 
-    for (const item of items) {
-      const div = document.createElement("div");
-      div.className = "listing";
-      div.style.border = "1px solid #ccc";
-      div.style.marginBottom = "15px";
-      div.style.padding = "10px";
+    for (const [image, group] of Object.entries(grouped)) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "listing-group";
+      wrapper.style.border = "1px solid #ccc";
+      wrapper.style.marginBottom = "25px";
+      wrapper.style.padding = "10px";
 
       const img = document.createElement("img");
-      img.src = item.image;
-      img.alt = "Item Image";
-      img.style.maxWidth = "200px";
+      img.src = image;
+      img.alt = "Booth Photo";
+      img.style.maxWidth = "300px";
       img.style.display = "block";
-      img.style.marginBottom = "10px";
+      img.style.marginBottom = "15px";
+      wrapper.appendChild(img);
 
-      const info = `
-        <strong>${item.title}</strong><br>
-        <em>${item.category}</em><br>
-        ${item.description}<br>
-        <strong>Price:</strong> ${item.price}<br>
-        <strong>Contact:</strong> ${item.contact}<br><br>
-        <a href="mailto:${item.contact}?subject=Interested in ${encodeURIComponent(item.title)}&body=Hi, I'm interested in your item titled '${encodeURIComponent(item.title)}'. Please let me know if it's still available.">I'm Interested</a>
-      `;
+      for (const item of group) {
+        const div = document.createElement("div");
+        div.className = "listing";
+        div.style.marginBottom = "10px";
 
-      div.appendChild(img);
-      div.innerHTML += info;
-      resultsDiv.appendChild(div);
+        div.innerHTML = `
+          <strong>${item.title}</strong><br>
+          <em>${item.category}</em><br>
+          ${item.description}<br>
+          <strong>Price:</strong> ${item.price}<br>
+          <strong>Contact:</strong> ${item.contact}<br>
+          <a href="mailto:${item.contact}?subject=Interested in ${encodeURIComponent(item.title)}&body=Hi, I'm interested in your item titled '${encodeURIComponent(item.title)}'. Please let me know if it's still available.">I'm Interested</a>
+          <hr>
+        `;
+        wrapper.appendChild(div);
+      }
+
+      resultsDiv.appendChild(wrapper);
     }
   }
 
   function searchListings() {
     const keyword = document.getElementById("searchInput").value.toLowerCase();
-    const listings = document.querySelectorAll(".listing");
+    const groups = document.querySelectorAll(".listing-group");
 
-    listings.forEach(listing => {
-      listing.style.display = listing.innerText.toLowerCase().includes(keyword) ? "block" : "none";
+    groups.forEach(group => {
+      const text = group.innerText.toLowerCase();
+      group.style.display = text.includes(keyword) ? "block" : "none";
     });
   }
 
